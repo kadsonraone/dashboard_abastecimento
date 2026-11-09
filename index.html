@@ -173,7 +173,7 @@
               <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Custo x Volume</p>
               <h3 class="text-sm font-bold text-slate-800">Distribuição por Base Operacional (R$ mil vs. mil L)</h3>
             </div>
-            <div class="p-4 h-[320px]">
+            <div class="p-4 h-[330px]">
               <canvas id="baseChart"></canvas>
             </div>
           </section>
@@ -183,7 +183,7 @@
               <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Eficiência</p>
               <h3 class="text-sm font-bold text-slate-800">Ranking de Consumo Médio (km/L) por Tipo</h3>
             </div>
-            <div class="p-4 h-[320px]">
+            <div class="p-4 h-[330px]">
               <canvas id="rankingChart"></canvas>
             </div>
           </section>
@@ -196,7 +196,7 @@
               <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Série Histórica</p>
               <h3 class="text-sm font-bold text-slate-800">Evolução Mensal de Abastecimentos e Volume</h3>
             </div>
-            <div class="p-4 h-[310px]">
+            <div class="p-4 h-[320px]">
               <canvas id="monthlyChart"></canvas>
             </div>
           </section>
@@ -206,7 +206,7 @@
               <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Composição</p>
               <h3 class="text-sm font-bold text-slate-800">Gasto por Tipo de Combustível</h3>
             </div>
-            <div class="p-4 h-[310px] flex items-center justify-center">
+            <div class="p-4 h-[320px] flex items-center justify-center">
               <canvas id="fuelChart"></canvas>
             </div>
           </section>
@@ -545,6 +545,7 @@
     }
 
     function updateCharts(filtered) {
+      // 1. Bases Operacionais (barras + linha com ícones preenchidos e rótulos sem sobreposição)
       const bases5 = ["BS-01", "BS-02", "BS-03", "BS-04", "BS-05"];
       const baseCusto = bases5.map(b => Number((filtered.filter(r => r.base === b).reduce((a, x) => a + x.valor, 0) / 1000).toFixed(1)));
       const baseLitros = bases5.map(b => Number((filtered.filter(r => r.base === b).reduce((a, x) => a + x.litros, 0) / 1000).toFixed(1)));
@@ -563,9 +564,9 @@
               yAxisID: "y",
               order: 2,
               datalabels: {
-                anchor: "end",
-                align: "bottom",
-                offset: 4,
+                anchor: "start",
+                align: "top",
+                offset: 8,
                 color: "#FFFFFF",
                 font: { weight: "bold", size: 11, family: "Plus Jakarta Sans" },
                 formatter: (val) => val > 0 ? "R$ " + val.toFixed(0) + "k" : ""
@@ -578,19 +579,23 @@
               borderColor: "#E34A4F",
               backgroundColor: "#E34A4F",
               borderWidth: 2.5,
-              pointRadius: 4,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              pointBackgroundColor: "#E34A4F",
+              pointBorderColor: "#FFFFFF",
+              pointBorderWidth: 1.5,
               tension: 0.3,
               yAxisID: "y1",
               order: 1,
               datalabels: {
                 anchor: "end",
                 align: "top",
-                offset: 4,
-                backgroundColor: "rgba(255,255,255,0.92)",
+                offset: 6,
+                backgroundColor: "rgba(255,255,255,0.95)",
                 borderColor: "#E34A4F",
                 borderWidth: 1,
                 borderRadius: 4,
-                padding: { top: 2, bottom: 2, left: 4, right: 4 },
+                padding: { top: 2, bottom: 2, left: 5, right: 5 },
                 color: "#B91C1C",
                 font: { weight: "bold", size: 10, family: "DM Mono" },
                 formatter: (val) => val > 0 ? val.toFixed(1).replace(".", ",") + "k L" : ""
@@ -601,14 +606,27 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 24 } },
+          layout: { padding: { top: 26 } },
+          plugins: {
+            legend: {
+              labels: {
+                usePointStyle: true,
+                pointStyle: "rectRounded",
+                boxWidth: 12,
+                boxHeight: 12,
+                padding: 16,
+                font: { size: 11, weight: "600" }
+              }
+            }
+          },
           scales: {
-            y: { position: "left", grid: { color: "#F1F5F9" } },
-            y1: { position: "right", grid: { drawOnChartArea: false } }
+            y: { position: "left", grid: { color: "#F1F5F9" }, suggestedMax: Math.max(...baseCusto, 100) * 1.15 },
+            y1: { position: "right", grid: { drawOnChartArea: false }, suggestedMax: Math.max(...baseLitros, 10) * 1.18 }
           }
         }
       });
 
+      // 2. Ranking km/L
       const rankList = VEHICLE_TYPES.map(t => {
         const sub = filtered.filter(r => r.tipo === t && r.isFuel && r.kmRodado > 0);
         const km = sub.reduce((a, x) => a + x.kmRodado, 0);
@@ -640,12 +658,13 @@
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { right: 64 } },
+          layout: { padding: { right: 68 } },
           plugins: { legend: { display: false } },
           scales: { x: { grid: { color: "#F1F5F9" } }, y: { grid: { display: false } } }
         }
       });
 
+      // 3. Série Mensal (eixo duplo y + y1 para separar linhas e não cruzar números com Jan/Fev/Mar, e legenda com ícones preenchidos)
       const activeMonthIndices = MONTHS.map((_, i) => i).filter(i => i <= 7 || filtered.some(r => r.mesIdx === i));
       const mLabels = activeMonthIndices.map(i => MONTHS[i]);
       const mAbast = mLabels.map(m => filtered.filter(r => r.mes === m).length);
@@ -661,15 +680,24 @@
               label: "Abastecimentos (qtd)",
               data: mAbast,
               borderColor: "#2468B4",
-              backgroundColor: "rgba(36,104,180,0.12)",
-              fill: true,
+              backgroundColor: "#2468B4",
+              fill: false,
+              borderWidth: 2.5,
               tension: 0.35,
-              pointRadius: 4,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              pointBackgroundColor: "#2468B4",
+              pointBorderColor: "#FFFFFF",
+              pointBorderWidth: 1.5,
+              yAxisID: "y",
               datalabels: {
                 anchor: "end",
                 align: "top",
-                offset: 3,
+                offset: 5,
                 color: "#1E3A8A",
+                backgroundColor: "rgba(255,255,255,0.88)",
+                borderRadius: 4,
+                padding: { top: 1, bottom: 1, left: 4, right: 4 },
                 font: { weight: "bold", size: 10, family: "DM Mono" },
                 formatter: (val) => val > 0 ? val : ""
               }
@@ -678,15 +706,24 @@
               label: "Volume (mil L)",
               data: mLitros,
               borderColor: "#E34A4F",
-              backgroundColor: "rgba(227,74,79,0.10)",
-              fill: true,
+              backgroundColor: "#E34A4F",
+              fill: false,
+              borderWidth: 2.5,
               tension: 0.35,
-              pointRadius: 4,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              pointBackgroundColor: "#E34A4F",
+              pointBorderColor: "#FFFFFF",
+              pointBorderWidth: 1.5,
+              yAxisID: "y1",
               datalabels: {
-                anchor: "start",
-                align: "bottom",
-                offset: 3,
+                anchor: "end",
+                align: "top",
+                offset: 5,
                 color: "#B91C1C",
+                backgroundColor: "rgba(255,255,255,0.88)",
+                borderRadius: 4,
+                padding: { top: 1, bottom: 1, left: 4, right: 4 },
                 font: { weight: "bold", size: 10, family: "DM Mono" },
                 formatter: (val) => val > 0 ? val.toFixed(1).replace(".", ",") + "k" : ""
               }
@@ -696,11 +733,47 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 22, bottom: 16, right: 16 } },
-          scales: { y: { grid: { color: "#F1F5F9" } }, x: { grid: { display: false } } }
+          layout: { padding: { top: 24, bottom: 8, right: 12, left: 6 } },
+          plugins: {
+            legend: {
+              labels: {
+                usePointStyle: true,
+                pointStyle: "rectRounded",
+                boxWidth: 12,
+                boxHeight: 12,
+                padding: 16,
+                font: { size: 11, weight: "600" }
+              }
+            }
+          },
+          scales: {
+            y: {
+              position: "left",
+              grid: { color: "#F1F5F9" },
+              suggestedMin: 0,
+              suggestedMax: Math.max(...mAbast, 50) * 1.18,
+              ticks: { color: "#2468B4", font: { size: 10, family: "DM Mono" } }
+            },
+            y1: {
+              position: "right",
+              grid: { drawOnChartArea: false },
+              suggestedMin: 0,
+              suggestedMax: Math.max(...mLitros, 10) * 1.35,
+              ticks: {
+                color: "#E34A4F",
+                font: { size: 10, family: "DM Mono" },
+                callback: (v) => v + "k"
+              }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { padding: 8, font: { size: 11, weight: "600" } }
+            }
+          }
         }
       });
 
+      // 4. Composição por Combustível (com rótulos externos/callout legíveis para todas as fatias, inclusive Gasolina e S500)
       const fuelMap = new Map();
       filtered.forEach(r => fuelMap.set(r.produto, (fuelMap.get(r.produto) || 0) + r.valor));
       const fLabels = Array.from(fuelMap.keys());
@@ -718,14 +791,23 @@
             borderWidth: 2,
             borderColor: "#FFFFFF",
             datalabels: {
-              color: "#FFFFFF",
-              backgroundColor: "rgba(15, 23, 42, 0.72)",
-              borderRadius: 4,
-              padding: { top: 3, bottom: 3, left: 5, right: 5 },
+              display: true,
+              anchor: "end",
+              align: "end",
+              offset: 6,
+              color: "#0F172A",
+              backgroundColor: "rgba(255, 255, 255, 0.94)",
+              borderColor: "#CBD5E1",
+              borderWidth: 1,
+              borderRadius: 6,
+              padding: { top: 3, bottom: 3, left: 6, right: 6 },
               font: { weight: "bold", size: 10, family: "DM Mono" },
-              formatter: (val) => {
+              formatter: (val, ctx) => {
+                if (val <= 0) return "";
                 const pct = ((val / fTotal) * 100).toFixed(1).replace(".", ",");
-                return pct >= 2 ? pct + "%\n(R$ " + (val / 1000).toFixed(0) + "k)" : "";
+                const name = ctx.chart.data.labels[ctx.dataIndex];
+                const kVal = (val / 1000).toFixed(0);
+                return `${name}: ${pct}% (R$ ${kVal}k)`;
               }
             }
           }]
@@ -733,9 +815,20 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: "60%",
+          layout: { padding: { top: 28, bottom: 12, left: 32, right: 32 } },
+          cutout: "58%",
           plugins: {
-            legend: { position: "bottom", labels: { font: { size: 11, weight: "600" } } }
+            legend: {
+              position: "bottom",
+              labels: {
+                usePointStyle: true,
+                pointStyle: "rectRounded",
+                boxWidth: 12,
+                boxHeight: 12,
+                padding: 16,
+                font: { size: 11, weight: "600" }
+              }
+            }
           }
         }
       });
