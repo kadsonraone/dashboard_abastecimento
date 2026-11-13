@@ -1327,7 +1327,7 @@
       }
 
       // Determinar o mês selecionado
-      let targetMonth = "Ago";
+      let targetMonth = "Out";
       if (selectedMonths && selectedMonths.length === 1) {
         targetMonth = selectedMonths[0];
       } else if (selectedMonths && selectedMonths.length > 1) {
@@ -1349,7 +1349,6 @@
       monthRecords.forEach(r => {
         let pref = String(r.prefixo || "").trim().toUpperCase();
         if (pref === "AC-06R") pref = "ACR";
-        if (pref === "IT-06R") pref = "IT-06R";
         if (!fuelByPrefix.has(pref)) {
           fuelByPrefix.set(pref, { litros: 0, valor: 0 });
         }
@@ -1358,7 +1357,7 @@
         cur.valor += (r.valor || 0);
       });
 
-      // Mapear dados de fechamento operacional (dias, ocorrências, km, peças)
+      // Mapear dados de fechamento operacional (dias, ocorrências, km)
       const opDataMap = new Map();
       monthlyOperationalData
         .filter(d => {
@@ -1424,22 +1423,20 @@
       wb.lastModifiedBy = "CCO - Rota do Pará";
       const ws = wb.addWorksheet(targetMonth.toUpperCase());
 
-      // Larguras de colunas idênticas ao modelo original
+      // Larguras de colunas otimizadas para 12 colunas
       ws.columns = [
         { width: 8.0 },   // A: #
         { width: 20.5 },  // B: PREFIXO
-        { width: 13.0 },  // C: LOCADORA
+        { width: 14.0 },  // C: LOCADORA
         { width: 14.8 },  // D: DIAS RODADOS
         { width: 14.0 },  // E: OC. ATEND.
-        { width: 13.0 },  // F: KM/MÊS
+        { width: 14.0 },  // F: KM/MÊS
         { width: 16.0 },  // G: COMB. (L)
         { width: 14.0 },  // H: R$/L
-        { width: 16.5 },  // I: CUSTO PEÇAS E SERVIÇO R$
-        { width: 16.0 },  // J: CUSTO R$
-        { width: 14.0 },  // K: MÉDIA Km/L
-        { width: 16.0 },  // L: CUSTO/OC.
-        { width: 14.0 },  // M: CUSTO/KM
-        { width: 25.1 }   // N: CUSTO TOTAL
+        { width: 17.0 },  // I: CUSTO R$
+        { width: 14.0 },  // J: MÉDIA Km/L
+        { width: 16.0 },  // K: CUSTO/OC.
+        { width: 15.0 }   // L: CUSTO/KM
       ];
 
       const thinBorder = {
@@ -1450,7 +1447,7 @@
       };
 
       // Linha 2: TÍTULO PRINCIPAL
-      ws.mergeCells("A2:N2");
+      ws.mergeCells("A2:L2");
       const titleCell = ws.getCell("A2");
       titleCell.value = `DESEMPENHO OPERACIONAL DAS VIATURAS — ${monthFullName}`;
       titleCell.font = { name: "Arial", size: 14, bold: true, color: { argb: "FFFFFFFF" } };
@@ -1458,11 +1455,10 @@
       titleCell.alignment = { horizontal: "center", vertical: "middle" };
       ws.getRow(2).height = 30;
 
-      // Linha 4: CABEÇALHOS
+      // Linha 4: CABEÇALHOS (Sem peças e serviço)
       const headers = [
         "#", "PREFIXO", "LOCADORA", "DIAS RODADOS", "OC. ATEND.", "KM/MÊS",
-        "COMB. (L)", "R$/L", "CUSTO PEÇAS E SERVIÇO R$", "CUSTO R$",
-        "MÉDIA Km/L", "CUSTO/OC.", "CUSTO/KM", "CUSTO TOTAL"
+        "COMB. (L)", "R$/L", "CUSTO R$", "MÉDIA Km/L", "CUSTO/OC.", "CUSTO/KM"
       ];
       const r4 = ws.getRow(4);
       r4.height = 31.5;
@@ -1479,7 +1475,7 @@
       REPORT_VEHICLES.forEach(v => {
         const r = ws.getRow(v.row);
         r.height = 18;
-        const op = opDataMap.get(v.pref) || { dias: 31, ocorrencias: 0, km: 0, pecas: 0 };
+        const op = opDataMap.get(v.pref) || { dias: 31, ocorrencias: 0, km: 0 };
         const fuel = fuelByPrefix.get(v.pref) || { litros: 0, valor: 0 };
 
         const cFill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + v.fill } };
@@ -1518,7 +1514,7 @@
         c4.fill = cFill;
         c4.border = thinBorder;
 
-        // Col 5: OC. ATEND. (azul de entrada)
+        // Col 5: OC. ATEND.
         const c5 = r.getCell(5);
         c5.value = op.ocorrencias > 0 ? op.ocorrencias : "-";
         c5.alignment = { horizontal: "center", vertical: "middle" };
@@ -1526,7 +1522,7 @@
         c5.fill = cWhiteFill;
         c5.border = thinBorder;
 
-        // Col 6: KM/MÊS (azul de entrada)
+        // Col 6: KM/MÊS
         const c6 = r.getCell(6);
         c6.value = op.km > 0 ? op.km : "-";
         c6.alignment = { horizontal: "center", vertical: "middle" };
@@ -1535,7 +1531,7 @@
         c6.fill = cWhiteFill;
         c6.border = thinBorder;
 
-        // Col 7: COMB. (L) - Automático do dashboard
+        // Col 7: COMB. (L)
         const c7 = r.getCell(7);
         c7.value = fuel.litros > 0 ? Number(fuel.litros.toFixed(2)) : "-";
         c7.alignment = { horizontal: "center", vertical: "middle" };
@@ -1544,68 +1540,50 @@
         c7.fill = cWhiteFill;
         c7.border = thinBorder;
 
-        // Col 8: R$/L (Fórmula)
+        // Col 8: R$/L (Fórmula: Custo R$ / Litros -> I / G)
         const c8 = r.getCell(8);
-        c8.value = { formula: `IFERROR(J${v.row}/G${v.row},"-")` };
+        c8.value = { formula: `IF(OR(G${v.row}="-",I${v.row}="-",ISBLANK(G${v.row}),G${v.row}=0),"-",IFERROR(I${v.row}/G${v.row},"-"))` };
         c8.alignment = { horizontal: "center", vertical: "middle" };
         c8.font = { name: "Arial", size: 10, bold: false, color: { argb: "FF0000FF" } };
         c8.numFmt = "0.00";
         c8.fill = cYellowFill;
         c8.border = thinBorder;
 
-        // Col 9: CUSTO PEÇAS E SERVIÇO R$
+        // Col 9: CUSTO R$ (Custo do Combustível)
         const c9 = r.getCell(9);
-        c9.value = op.pecas > 0 ? Number(op.pecas.toFixed(2)) : "-";
+        c9.value = fuel.valor > 0 ? Number(fuel.valor.toFixed(2)) : "-";
         c9.alignment = { horizontal: "center", vertical: "middle" };
-        c9.font = { name: "Arial", size: 10, bold: false };
+        c9.font = { name: "Arial", size: 10, bold: true };
         c9.numFmt = '"R$ "#,##0.00';
         c9.fill = cFill;
         c9.border = thinBorder;
 
-        // Col 10: CUSTO R$ - Automático do dashboard
+        // Col 10: MÉDIA Km/L (Fórmula: KM / Litros -> F / G)
         const c10 = r.getCell(10);
-        c10.value = fuel.valor > 0 ? Number(fuel.valor.toFixed(2)) : "-";
+        c10.value = { formula: `IF(OR(F${v.row}="-",G${v.row}="-",ISBLANK(F${v.row}),ISBLANK(G${v.row}),G${v.row}=0),"-",IFERROR(F${v.row}/G${v.row},"-"))` };
         c10.alignment = { horizontal: "center", vertical: "middle" };
         c10.font = { name: "Arial", size: 10, bold: false };
-        c10.numFmt = '"R$ "#,##0.00';
+        c10.numFmt = "0.00";
         c10.fill = cFill;
         c10.border = thinBorder;
 
-        // Col 11: MÉDIA Km/L (Fórmula)
+        // Col 11: CUSTO/OC. (Fórmula: Custo / Ocorrências -> I / E)
         const c11 = r.getCell(11);
-        c11.value = { formula: `IF(OR(F${v.row}=0,G${v.row}=0,ISBLANK(G${v.row})),"-",F${v.row}/G${v.row})` };
+        c11.value = { formula: `IF(OR(E${v.row}=0,E${v.row}="-",I${v.row}="-",ISBLANK(E${v.row})),"-",IFERROR(I${v.row}/E${v.row},"-"))` };
         c11.alignment = { horizontal: "center", vertical: "middle" };
         c11.font = { name: "Arial", size: 10, bold: false };
-        c11.numFmt = "0.00";
+        c11.numFmt = '"R$ "#,##0.00';
         c11.fill = cFill;
         c11.border = thinBorder;
 
-        // Col 12: CUSTO/OC. (Fórmula)
+        // Col 12: CUSTO/KM (Fórmula: Custo / KM -> I / F)
         const c12 = r.getCell(12);
-        c12.value = { formula: `IF(OR(E${v.row}=0,E${v.row}="-",J${v.row}="-"),"-",J${v.row}/E${v.row})` };
+        c12.value = { formula: `IF(OR(F${v.row}=0,F${v.row}="-",I${v.row}="-",ISBLANK(F${v.row})),"-",IFERROR(I${v.row}/F${v.row},"-"))` };
         c12.alignment = { horizontal: "center", vertical: "middle" };
         c12.font = { name: "Arial", size: 10, bold: false };
         c12.numFmt = '"R$ "#,##0.00';
         c12.fill = cFill;
         c12.border = thinBorder;
-
-        // Col 13: CUSTO/KM (Fórmula)
-        const c13 = r.getCell(13);
-        c13.value = { formula: `IF(OR(F${v.row}=0,F${v.row}="-",J${v.row}="-"),"-",J${v.row}/F${v.row})` };
-        c13.alignment = { horizontal: "center", vertical: "middle" };
-        c13.font = { name: "Arial", size: 10, bold: false };
-        c13.numFmt = '"R$ "#,##0.00';
-        c13.fill = cFill;
-        c13.border = thinBorder;
-
-        // Col 14: CUSTO TOTAL (Fórmula)
-        const c14 = r.getCell(14);
-        c14.value = { formula: `SUM(I${v.row}:J${v.row})` };
-        c14.alignment = { horizontal: "center", vertical: "middle" };
-        c14.font = { name: "Arial", size: 10, bold: true };
-        c14.numFmt = '"R$ "#,##0.00';
-        c14.fill = cFill;
-        c14.border = thinBorder;
       });
 
       // Linhas de MÉDIA e TOTAL para cada bloco
@@ -1629,18 +1607,18 @@
         rAvg.getCell(7).numFmt = "#,##0.00";
         rAvg.getCell(8).value = { formula: `IFERROR(AVERAGE(H${b.start}:H${b.end}),"-")` };
         rAvg.getCell(8).numFmt = '"R$ "#,##0.00';
-        rAvg.getCell(10).value = { formula: `IFERROR(AVERAGE(J${b.start}:J${b.end}),"-")` };
-        rAvg.getCell(10).numFmt = '"R$ "#,##0.00';
-        rAvg.getCell(11).value = { formula: `IFERROR(AVERAGE(K${b.start}:K${b.end}),"-")` };
-        rAvg.getCell(11).numFmt = "0.00";
-        rAvg.getCell(12).value = { formula: `IFERROR(AVERAGE(L${b.start}:L${b.end}),"-")` };
+        rAvg.getCell(9).value = { formula: `IFERROR(AVERAGE(I${b.start}:I${b.end}),"-")` };
+        rAvg.getCell(9).numFmt = '"R$ "#,##0.00';
+        
+        // Médias ponderadas no total do grupo
+        rAvg.getCell(10).value = { formula: `IF(OR(F${b.totalRow}=0,G${b.totalRow}=0),"-",IFERROR(F${b.totalRow}/G${b.totalRow},"-"))` };
+        rAvg.getCell(10).numFmt = "0.00";
+        rAvg.getCell(11).value = { formula: `IF(OR(E${b.totalRow}=0,I${b.totalRow}=0),"-",IFERROR(I${b.totalRow}/E${b.totalRow},"-"))` };
+        rAvg.getCell(11).numFmt = '"R$ "#,##0.00';
+        rAvg.getCell(12).value = { formula: `IF(OR(F${b.totalRow}=0,I${b.totalRow}=0),"-",IFERROR(I${b.totalRow}/F${b.totalRow},"-"))` };
         rAvg.getCell(12).numFmt = '"R$ "#,##0.00';
-        rAvg.getCell(13).value = { formula: `IFERROR(AVERAGE(M${b.start}:M${b.end}),"-")` };
-        rAvg.getCell(13).numFmt = '"R$ "#,##0.00';
-        rAvg.getCell(14).value = { formula: `IFERROR(AVERAGE(N${b.start}:N${b.end}),"-")` };
-        rAvg.getCell(14).numFmt = '"R$ "#,##0.00';
 
-        for (let c = 1; c <= 14; c++) {
+        for (let c = 1; c <= 12; c++) {
           const cell = rAvg.getCell(c);
           cell.fill = subtotalFill;
           cell.border = thinBorder;
@@ -1664,12 +1642,8 @@
         rTot.getCell(7).numFmt = "#,##0.00";
         rTot.getCell(9).value = { formula: `SUM(I${b.start}:I${b.end})` };
         rTot.getCell(9).numFmt = '"R$ "#,##0.00';
-        rTot.getCell(10).value = { formula: `SUM(J${b.start}:J${b.end})` };
-        rTot.getCell(10).numFmt = '"R$ "#,##0.00';
-        rTot.getCell(14).value = { formula: `SUM(N${b.start}:N${b.end})` };
-        rTot.getCell(14).numFmt = '"R$ "#,##0.00';
 
-        for (let c = 1; c <= 14; c++) {
+        for (let c = 1; c <= 12; c++) {
           const cell = rTot.getCell(c);
           cell.fill = subtotalFill;
           cell.border = thinBorder;
@@ -1698,16 +1672,12 @@
       r53.getCell(8).value = "—";
       r53.getCell(9).value = { formula: `SUM(${totRows.map(r => 'I' + r).join(',')})` };
       r53.getCell(9).numFmt = '"R$ "#,##0.00';
-      r53.getCell(10).value = { formula: `SUM(${totRows.map(r => 'J' + r).join(',')})` };
-      r53.getCell(10).numFmt = '"R$ "#,##0.00';
+      r53.getCell(10).value = "—";
       r53.getCell(11).value = "—";
       r53.getCell(12).value = "—";
-      r53.getCell(13).value = "—";
-      r53.getCell(14).value = { formula: `SUM(${totRows.map(r => 'N' + r).join(',')})` };
-      r53.getCell(14).numFmt = '"R$ "#,##0.00';
 
       const totalGeneralFill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1F3864" } };
-      for (let c = 1; c <= 14; c++) {
+      for (let c = 1; c <= 12; c++) {
         const cell = r53.getCell(c);
         cell.fill = totalGeneralFill;
         cell.font = { name: "Arial", size: 10, bold: true, color: { argb: "FFFFFFFF" } };
@@ -1716,7 +1686,7 @@
       }
 
       // Linha 55: LEGENDA
-      ws.mergeCells("A55:N55");
+      ws.mergeCells("A55:L55");
       const r55 = ws.getRow(55);
       r55.height = 18;
       const c55 = r55.getCell(1);
@@ -1737,7 +1707,6 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
-
 
     applyFilters();
   </script>
