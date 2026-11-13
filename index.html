@@ -297,7 +297,7 @@
 
         let selectedMonths = [];
     let selectedBases = [];
-    let selectedTypes = [...VEHICLE_TYPES];
+    let selectedTypes = [];
     let selectedProduct = "";
     let selectedVehicle = "";
     let auditCurrentPage = 1;
@@ -567,9 +567,9 @@
       const tDiv = document.getElementById("typeButtons");
       tDiv.innerHTML = VEHICLE_TYPES.map(t => {
         const active = selectedTypes.includes(t);
-        return `<button onclick="toggleType('${t}')" class="rounded-lg border px-2.5 py-1.5 text-[11px] font-bold transition cursor-pointer ${active ? 'border-[#2468B4] bg-[#2468B4] text-white' : 'border-slate-200 bg-white text-slate-500'}">${t}</button>`;
+        return `<button onclick="toggleType('${t}')" class="rounded-lg border px-2.5 py-1.5 text-[11px] font-bold transition cursor-pointer ${active ? 'border-[#122B4B] bg-[#122B4B] text-white shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}">${t}</button>`;
       }).join("");
-      document.getElementById("typeCount").innerText = `${selectedTypes.length}/${VEHICLE_TYPES.length}`;
+      document.getElementById("typeCount").innerText = selectedTypes.length === 0 ? `Todos (${VEHICLE_TYPES.length})` : `${selectedTypes.length} sel.`;
     }
 
     function populateVehicleSelect() {
@@ -642,7 +642,7 @@
 
     function crossFilterType(t) {
       if (selectedTypes.length === 1 && selectedTypes[0] === t) {
-        selectedTypes = [...VEHICLE_TYPES];
+        selectedTypes = [];
       } else {
         selectedTypes = [t];
       }
@@ -671,9 +671,9 @@
         const label = selectedBases.length === 1 ? `Base: ${selectedBases[0]}` : `Bases: ${selectedBases.join(", ")}`;
         chips.push(`<button onclick="selectedBases=[];applyFilters()" class="inline-flex items-center gap-1 rounded-full bg-[#2468B4] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm hover:bg-blue-700 cursor-pointer">${label} <span class="text-blue-100">✕</span></button>`);
       }
-      if (selectedTypes.length < VEHICLE_TYPES.length) {
-        const label = selectedTypes.length === 1 ? `Tipo: ${selectedTypes[0]}` : `Tipos: ${selectedTypes.length} selecionados`;
-        chips.push(`<button onclick="selectedTypes=[...VEHICLE_TYPES];applyFilters()" class="inline-flex items-center gap-1 rounded-full bg-[#2468B4] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm hover:bg-blue-700 cursor-pointer">${label} <span class="text-blue-100">✕</span></button>`);
+      if (selectedTypes.length > 0) {
+        const label = selectedTypes.length === 1 ? `Tipo: ${selectedTypes[0]}` : `Tipos: ${selectedTypes.join(", ")}`;
+        chips.push(`<button onclick="selectedTypes=[];applyFilters()" class="inline-flex items-center gap-1 rounded-full bg-[#2468B4] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm hover:bg-blue-700 cursor-pointer">${label} <span class="text-blue-100">✕</span></button>`);
       }
       if (selectedProduct) {
         chips.push(`<button onclick="toggleProductFilter('${selectedProduct}')" class="inline-flex items-center gap-1 rounded-full bg-[#E34A4F] px-2.5 py-1 text-[11px] font-bold text-white shadow-sm hover:bg-red-600 cursor-pointer">Produto: ${selectedProduct} <span class="text-red-100">✕</span></button>`);
@@ -713,7 +713,7 @@
       document.getElementById("searchInput").value = "";
       selectedMonths = [];
       selectedBases = [];
-      selectedTypes = [...VEHICLE_TYPES];
+      selectedTypes = [];
       selectedProduct = "";
       selectedVehicle = "";
       applyFilters();
@@ -730,7 +730,7 @@
         if (onlyFuel && !r.isFuel) return false;
         if (selectedMonths.length > 0 && !selectedMonths.includes(r.mes)) return false;
         if (selectedBases.length > 0 && !selectedBases.includes(r.base) && r.base !== "BAIXADO") return false;
-        if (!selectedTypes.includes(r.tipo)) return false;
+        if (selectedTypes.length > 0 && !selectedTypes.includes(r.tipo)) return false;
         if (selectedProduct && r.produto !== selectedProduct) return false;
         if (selectedVehicle && r.prefixo !== selectedVehicle) return false;
         return true;
@@ -745,7 +745,7 @@
 
       const mediaKmL = litrosTrips > 0 ? (totalKm / litrosTrips) : 0;
       const custoKm = totalKm > 0 ? (valorTrips / totalKm) : 0;
-      const ativas = fleetList.filter(v => v.status === "ATIVO" && (selectedBases.length === 0 || selectedBases.includes(v.base)) && selectedTypes.includes(v.tipo) && (!selectedVehicle || v.prefixo === selectedVehicle)).length;
+      const ativas = fleetList.filter(v => v.status === "ATIVO" && (selectedBases.length === 0 || selectedBases.includes(v.base)) && (selectedTypes.length === 0 || selectedTypes.includes(v.tipo)) && (!selectedVehicle || v.prefixo === selectedVehicle)).length;
 
       document.getElementById("kpiCusto").innerText = totalValor >= 1e6
         ? `R$ ${(totalValor / 1e6).toFixed(2).replace(".", ",")}M`
@@ -971,7 +971,7 @@
       }).sort((a, b) => b.kml - a.kml);
 
       const baseRankPalette = ["#122B4B", "#2468B4", "#2468B4", "#6F9CCE", "#6F9CCE", "#94A3B8"];
-      const isTypeFiltered = selectedTypes.length < VEHICLE_TYPES.length;
+      const isTypeFiltered = selectedTypes.length > 0;
       const rankColors = rankList.map((x, idx) => (!isTypeFiltered || selectedTypes.includes(x.tipo)) ? baseRankPalette[idx % baseRankPalette.length] : "rgba(148, 163, 184, 0.25)");
 
       if (charts.ranking) charts.ranking.destroy();
