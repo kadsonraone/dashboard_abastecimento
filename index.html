@@ -48,8 +48,8 @@
           <span id="statusText" class="font-mono-tech text-[10px] uppercase tracking-wider text-emerald-100">Base Operacional Carregada (3756 lançamentos)</span>
         </div>
 
-        <button onclick="document.getElementById('excelInput').click()" class="flex items-center gap-1.5 rounded-xl bg-[#E34A4F] px-3 py-2 text-xs font-bold text-white shadow hover:bg-red-600 transition cursor-pointer" title="Carregar nova planilha Excel">
-          <span>📂 Atualizar Excel</span>
+        <button onclick="document.getElementById('excelInput').click()" class="flex items-center gap-1.5 rounded-xl bg-[#E34A4F] px-3 py-2 text-xs font-bold text-white shadow hover:bg-red-600 transition cursor-pointer" title="Carregar nova planilha de dados">
+          <span>📂 Atualizar Dados</span>
         </button>
 
         <button onclick="downloadUpdatedHTML()" class="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow hover:bg-emerald-500 transition cursor-pointer" title="Baixar arquivo index.html já salvo com os dados atuais para subir no GitHub">
@@ -133,142 +133,301 @@
           <div>
             <p class="font-mono-tech text-[10px] font-medium uppercase tracking-[0.2em] text-[#2468B4]">Eficiência de Frota · Somente Operação</p>
             <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Performance Operacional</h2>
-            <p id="subtitleInfo" class="text-xs text-slate-500 mt-0.5">5 bases operacionais (BS-01 a BS-05) · Clique em qualquer gráfico para filtrar o painel (modo Power BI)</p>
+            <p id="subtitleInfo" class="text-xs text-slate-500 mt-0.5">5 bases operacionais (BS-01 a BS-05) · Clique em qualquer gráfico para filtrar o painel</p>
           </div>
           <div id="activeFilterChips" class="flex flex-wrap items-center gap-1.5"></div>
         </div>
 
-        <!-- 5 Cartões KPI -->
-        <div class="grid grid-cols-2 gap-3.5 xl:grid-cols-5">
-          <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Custo Total</p>
-            <p id="kpiCusto" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">-</p>
-            <p class="mt-1 text-[11px] font-medium text-[#E34A4F]">Acumulado no filtro</p>
-          </div>
-
-          <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Volume Total</p>
-            <p id="kpiLitros" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">-</p>
-            <p id="kpiAbastCount" class="mt-1 text-[11px] text-slate-500">-</p>
-          </div>
-
-          <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Consumo Médio</p>
-            <p id="kpiKmL" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">-</p>
-            <p class="mt-1 text-[11px] text-slate-500">Hodômetros validados</p>
-          </div>
-
-          <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Custo por KM</p>
-            <p id="kpiCustoKm" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">-</p>
-            <p class="mt-1 text-[11px] text-slate-500">Média operacional</p>
-          </div>
-
-          <div class="col-span-2 xl:col-span-1 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-            <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Viaturas Ativas</p>
-            <p id="kpiViaturas" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">28</p>
-            <p class="mt-1 text-[11px] text-slate-500">Distribuídas nas bases</p>
-          </div>
+                <!-- Navegação por Abas (Layout Limpo e Despoluído) -->
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+          <button id="tabBtnFinanceiro" onclick="switchTab('financeiro')" class="tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer bg-[#122B4B] text-white shadow-sm">
+            <span>📊 Financeiro & Combustível</span>
+          </button>
+          <button id="tabBtnOperacional" onclick="switchTab('operacional')" class="tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+            <span>🚨 Ocorrências & KM</span>
+          </button>
+          <button id="tabBtnAuditoria" onclick="switchTab('auditoria')" class="tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+            <span>📋 Auditoria de Lançamentos</span>
+          </button>
         </div>
 
-        <!-- Linha 1 de Gráficos -->
-        <div class="grid gap-5 xl:grid-cols-[1.45fr_1fr]">
-          <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-            <div class="border-b border-slate-100 px-5 py-3.5">
-              <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Custo x Volume</p>
-              <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-bold text-slate-800">Distribuição por Base Operacional (R$ vs. Litros)</h3><span class="font-mono-tech text-[10px] text-slate-400">Clique na barra para filtrar</span></div>
-            </div>
-            <div class="p-4 h-[330px]">
-              <canvas id="baseChart"></canvas>
-            </div>
-          </section>
-
-          <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-            <div class="border-b border-slate-100 px-5 py-3.5">
-              <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Eficiência</p>
-              <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-bold text-slate-800">Ranking de Consumo Médio (km/L) por Tipo</h3><span class="font-mono-tech text-[10px] text-slate-400">Clique no tipo para filtrar</span></div>
-            </div>
-            <div class="p-4 h-[330px]">
-              <canvas id="rankingChart"></canvas>
-            </div>
-          </section>
-        </div>
-
-        <!-- Linha 2 de Gráficos -->
-        <div class="grid gap-5 xl:grid-cols-[1.45fr_1fr]">
-          <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-            <div class="border-b border-slate-100 px-5 py-3.5">
-              <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Série Histórica</p>
-              <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-bold text-slate-800">Evolução Mensal de Abastecimentos e Volume</h3><span class="font-mono-tech text-[10px] text-slate-400">Clique no mês para filtrar</span></div>
-            </div>
-            <div class="p-4 h-[320px]">
-              <canvas id="monthlyChart"></canvas>
-            </div>
-          </section>
-
-          <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden flex flex-col">
-            <div class="border-b border-slate-100 px-5 py-3.5">
-              <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Composição</p>
-              <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-bold text-slate-800">Gasto por Tipo de Combustível</h3><span class="font-mono-tech text-[10px] text-slate-400">Clique para isolar produto</span></div>
-            </div>
-            <div class="p-4 flex-1 min-h-[250px] grid sm:grid-cols-[190px_1fr] items-center gap-4">
-              <div class="h-[220px] relative">
-                <canvas id="fuelChart"></canvas>
+        <!-- ABA 1: FINANCEIRO & COMBUSTÍVEL -->
+        <div id="tabContentFinanceiro" class="tab-content space-y-6">
+          <!-- 5 Cartões KPI Financeiros -->
+          <div class="grid grid-cols-2 gap-3.5 xl:grid-cols-5">
+            <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Custo Total</p>
+                <div class="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100 text-slate-600" title="Custo Financeiro">
+                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V6m0 12v-2m0 0c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
               </div>
-              <div id="fuelLegendList" class="space-y-2"></div>
+              <p id="kpiCusto" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">-</p>
+              <p class="mt-1 text-[11px] font-medium text-[#E34A4F]">Acumulado no filtro</p>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Volume Total</p>
+                <div class="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-50 text-[#2468B4]" title="Litros Abastecidos">
+                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                  </svg>
+                </div>
+              </div>
+              <p id="kpiLitros" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">-</p>
+              <p id="kpiAbastCount" class="mt-1 text-[11px] text-slate-500">-</p>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Consumo Médio</p>
+                <div class="flex h-6 w-6 items-center justify-center rounded-lg bg-teal-50 text-teal-700" title="Eficiência km/L">
+                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+              </div>
+              <p id="kpiKmL" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">-</p>
+              <p class="mt-1 text-[11px] text-slate-500">Hodômetros validados</p>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Custo por KM</p>
+                <div class="flex h-6 w-6 items-center justify-center rounded-lg bg-rose-50 text-rose-600" title="Custo Médio por Quilômetro">
+                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+              </div>
+              <p id="kpiCustoKm" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">-</p>
+              <p class="mt-1 text-[11px] text-slate-500">Média operacional</p>
+            </div>
+
+            <div class="col-span-2 xl:col-span-1 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Viaturas Ativas</p>
+                <div class="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100 text-slate-700" title="Frota em Operação">
+                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                  </svg>
+                </div>
+              </div>
+              <p id="kpiViaturas" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900">28</p>
+              <p class="mt-1 text-[11px] text-slate-500">Distribuídas nas bases</p>
+            </div>
+          </div>
+
+          <!-- Linha 1 de Gráficos -->
+          <div class="grid gap-5 xl:grid-cols-[1.45fr_1fr]">
+            <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+              <div class="border-b border-slate-100 px-5 py-3.5">
+                <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Custo x Volume</p>
+                <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-bold text-slate-800">Distribuição por Base Operacional (R$ vs. Litros)</h3><span class="font-mono-tech text-[10px] text-slate-400">Clique na barra para filtrar</span></div>
+              </div>
+              <div class="p-4 h-[330px]">
+                <canvas id="baseChart"></canvas>
+              </div>
+            </section>
+
+            <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+              <div class="border-b border-slate-100 px-5 py-3.5">
+                <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Eficiência</p>
+                <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-bold text-slate-800">Ranking de Consumo Médio (km/L) por Tipo</h3><span class="font-mono-tech text-[10px] text-slate-400">Clique no tipo para filtrar</span></div>
+              </div>
+              <div class="p-4 h-[330px]">
+                <canvas id="rankingChart"></canvas>
+              </div>
+            </section>
+          </div>
+
+          <!-- Linha 2 de Gráficos -->
+          <div class="grid gap-5 xl:grid-cols-[1.45fr_1fr]">
+            <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+              <div class="border-b border-slate-100 px-5 py-3.5">
+                <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Série Histórica</p>
+                <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-bold text-slate-800">Evolução Mensal de Abastecimentos e Volume</h3><span class="font-mono-tech text-[10px] text-slate-400">Clique no mês para filtrar</span></div>
+              </div>
+              <div class="p-4 h-[320px]">
+                <canvas id="monthlyChart"></canvas>
+              </div>
+            </section>
+
+            <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden flex flex-col">
+              <div class="border-b border-slate-100 px-5 py-3.5">
+                <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Composição</p>
+                <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-bold text-slate-800">Gasto por Tipo de Combustível</h3><span class="font-mono-tech text-[10px] text-slate-400">Clique para isolar produto</span></div>
+              </div>
+              <div class="p-4 flex-1 min-h-[250px] grid sm:grid-cols-[190px_1fr] items-center gap-4">
+                <div class="h-[220px] relative">
+                  <canvas id="fuelChart"></canvas>
+                </div>
+                <div id="fuelLegendList" class="space-y-2"></div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Linha 3: Evolução Mensal de Custo -->
+          <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+              <div>
+                <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Análise Financeira Mensal</p>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-bold text-slate-800">Evolução Mensal de Custo (R$)</h3>
+                  <span class="font-mono-tech text-[10px] text-slate-400">· Clique no mês para filtrar</span>
+                </div>
+              </div>
+              <div id="monthlyCostBadges" class="flex flex-wrap items-center gap-2 text-xs"></div>
+            </div>
+            <div class="p-4 h-[310px]">
+              <canvas id="monthlyCostChart"></canvas>
             </div>
           </section>
         </div>
 
-        <!-- Linha 3: Evolução Mensal de Custo -->
-        <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
-            <div>
-              <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Análise Financeira Mensal</p>
+        <!-- ABA 2: OPERACIONAL CCO -->
+        <div id="tabContentOperacional" class="tab-content hidden space-y-6">
+          <!-- 4 Cartões KPI Operacionais -->
+          <div class="grid grid-cols-2 gap-3.5 xl:grid-cols-4">
+            <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Ocorrências Atendidas</p>
+                <div class="flex items-center gap-1.5">
+                  <span class="rounded-lg bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-[#2468B4]">CCO</span>
+                  <div class="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-50 text-[#122B4B]" title="Atendimentos em Pista">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <p id="kpiOcorrencias" class="mt-2 text-3xl font-extrabold tracking-tight text-[#122B4B]">-</p>
+              <p class="mt-1 text-[11px] text-slate-500">Total de chamados em pista</p>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">KM's Rodados Totais</p>
+                <div class="flex items-center gap-1.5">
+                  <span class="rounded-lg bg-red-50 px-2 py-0.5 text-[10px] font-bold text-[#E34A4F]">Frota</span>
+                  <div class="flex h-6 w-6 items-center justify-center rounded-lg bg-red-50 text-[#E34A4F]" title="Quilômetros Rodados">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <p id="kpiKmRodados" class="mt-2 text-3xl font-extrabold tracking-tight text-[#E34A4F]">-</p>
+              <p class="mt-1 text-[11px] text-slate-500">Quilometragem oficial percorrida</p>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Média KM / Viatura</p>
+                <div class="flex items-center gap-1.5">
+                  <span class="rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">Eficiência</span>
+                  <div class="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100 text-slate-600" title="Média de Rodagem">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <p id="kpiKmPorViatura" class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">-</p>
+              <p class="mt-1 text-[11px] text-slate-500">Média por veículo ativo</p>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <p class="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-slate-400">Viaturas Ativas</p>
+                <div class="flex items-center gap-1.5">
+                  <span class="rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Operação</span>
+                  <div class="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700" title="Viaturas em Linha">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <p id="kpiViaturasOp" class="mt-2 text-3xl font-extrabold tracking-tight text-emerald-700">28</p>
+              <p class="mt-1 text-[11px] text-slate-500">Distribuídas em BS-01 a BS-05</p>
+            </div>
+          </div>
+
+          <!-- Linha de Gráficos Operacionais CCO -->
+          <div class="grid gap-5 xl:grid-cols-2">
+            <!-- Gráfico 1: Ocorrências e KM por Mês -->
+            <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+                <div>
+                  <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Produção Mensal CCO</p>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-bold text-slate-800">Evolução de Ocorrências e KM por Mês</h3>
+                    <span class="font-mono-tech text-[10px] text-slate-400">· Clique no mês para filtrar</span>
+                  </div>
+                </div>
+              </div>
+              <div class="p-4 h-[370px]">
+                <canvas id="monthlyOpChart"></canvas>
+              </div>
+            </section>
+
+            <!-- Gráfico 2: Ocorrências e KM por Base Operacional -->
+            <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+                <div>
+                  <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Distribuição em Pista</p>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-bold text-slate-800">Ocorrências e KM por Base Operacional</h3>
+                    <span class="font-mono-tech text-[10px] text-slate-400">· Clique na base para filtrar</span>
+                  </div>
+                </div>
+              </div>
+              <div class="p-4 h-[370px]">
+                <canvas id="baseOpChart"></canvas>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ABA 3: AUDITORIA DE LANÇAMENTOS -->
+        <div id="tabContentAuditoria" class="tab-content hidden space-y-6">
+          <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
+              <div>
+                <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Auditoria & Gestão</p>
+                <h3 id="auditTitle" class="text-sm font-bold text-slate-800">Lançamentos da Operação</h3>
+              </div>
               <div class="flex items-center gap-2">
-                <h3 class="text-sm font-bold text-slate-800">Evolução Mensal de Custo (R$)</h3>
-                <span class="font-mono-tech text-[10px] text-slate-400">· Clique no mês para filtrar</span>
+                <input type="text" id="searchInput" oninput="onSearchInput()" placeholder="🔍 Buscar prefixo, placa, motorista..." class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-[#2468B4] w-64" />
               </div>
             </div>
-            <div id="monthlyCostBadges" class="flex flex-wrap items-center gap-2 text-xs"></div>
-          </div>
-          <div class="p-4 h-[310px]">
-            <canvas id="monthlyCostChart"></canvas>
-          </div>
-        </section>
-
-        <!-- Tabela de Auditoria -->
-        <section class="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
-            <div>
-              <p class="font-mono-tech text-[10px] uppercase tracking-[0.18em] text-[#2468B4]">Auditoria</p>
-              <h3 id="auditTitle" class="text-sm font-bold text-slate-800">Lançamentos da Operação</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[980px] text-left">
+                <thead>
+                  <tr class="bg-slate-50 font-mono-tech text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                    <th class="px-5 py-3">Data</th>
+                    <th class="px-5 py-3">Prefixo / Placa</th>
+                    <th class="px-5 py-3">Motorista</th>
+                    <th class="px-5 py-3">Tipo</th>
+                    <th class="px-5 py-3">Base</th>
+                    <th class="px-5 py-3">Produto</th>
+                    <th class="px-5 py-3">KM</th>
+                    <th class="px-5 py-3">Volume</th>
+                    <th class="px-5 py-3">Valor</th>
+                    <th class="px-5 py-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="auditTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
+              </table>
             </div>
-            <div class="flex items-center gap-2">
-              <input type="text" id="searchInput" oninput="onSearchInput()" placeholder="🔍 Buscar prefixo, placa, motorista..." class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:border-[#2468B4] w-64" />
-            </div>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full min-w-[980px] text-left">
-              <thead>
-                <tr class="bg-slate-50 font-mono-tech text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-100">
-                  <th class="px-5 py-3">Data</th>
-                  <th class="px-5 py-3">Prefixo / Placa</th>
-                  <th class="px-5 py-3">Motorista</th>
-                  <th class="px-5 py-3">Tipo</th>
-                  <th class="px-5 py-3">Base</th>
-                  <th class="px-5 py-3">Produto</th>
-                  <th class="px-5 py-3">KM</th>
-                  <th class="px-5 py-3">Volume</th>
-                  <th class="px-5 py-3">Valor</th>
-                  <th class="px-5 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody id="auditTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
-            </table>
-          </div>
-          <div id="auditPagination" class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-3 text-xs"></div>
-        </section>
+            <div id="auditPagination" class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-3 text-xs"></div>
+          </section>
+        </div>
 
       </div>
     </main>
@@ -310,7 +469,7 @@
 
     
     // Dados de apoio para fechamento operacional (Ocorrências, KM/Mês, Dias e Peças)
-    let monthlyOperationalData = [{"mes": "Ago", "prefixo": "IT-01", "dias": 31, "ocorrencias": 461, "km": 17624, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-02", "dias": 31, "ocorrencias": 269, "km": 17409, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-03", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-04", "dias": 27, "ocorrencias": 509, "km": 14262, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-05", "dias": 29, "ocorrencias": 546, "km": 10592, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-01", "dias": 25, "ocorrencias": 60, "km": 4566, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-02", "dias": 29, "ocorrencias": 57, "km": 6047, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-03", "dias": 18, "ocorrencias": 64, "km": 6467, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-04", "dias": 31, "ocorrencias": 81, "km": 5613, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-05", "dias": 27, "ocorrencias": 100, "km": 5061, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-01", "dias": 31, "ocorrencias": 61, "km": 4254, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-02", "dias": 31, "ocorrencias": 17, "km": 2630, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-03", "dias": 31, "ocorrencias": 28, "km": 2711, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-04", "dias": 31, "ocorrencias": 51, "km": 3461, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-05", "dias": 31, "ocorrencias": 10, "km": 807, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-01", "dias": 31, "ocorrencias": 23, "km": 1725, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-02", "dias": 31, "ocorrencias": 71, "km": 8268, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-03", "dias": 6, "ocorrencias": 6, "km": 1927, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-04", "dias": 25, "ocorrencias": 47, "km": 4035, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-05", "dias": 24, "ocorrencias": 45, "km": 2788, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GP-01", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GP-02", "dias": 31, "ocorrencias": 79, "km": 7761, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GP-03R", "dias": 31, "ocorrencias": 72, "km": 6436, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-01", "dias": 31, "ocorrencias": 43, "km": 3781, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-02", "dias": 31, "ocorrencias": 53, "km": 4019, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-03", "dias": 31, "ocorrencias": 62, "km": 6091, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-04", "dias": 29, "ocorrencias": 47, "km": 1957, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-05", "dias": 25, "ocorrencias": 42, "km": 2622, "pecas": 0.0}, {"mes": "Ago", "prefixo": "ACR", "dias": 6, "ocorrencias": 3, "km": 2899, "pecas": 0.0}];
+    let monthlyOperationalData = [{"mes": "Fev", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 28, "ocorrencias": 749, "km": 13906, "pecas": 0.0}, {"mes": "Fev", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 28, "ocorrencias": 278, "km": 14511, "pecas": 0.0}, {"mes": "Fev", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 28, "ocorrencias": 215, "km": 16658, "pecas": 0.0}, {"mes": "Fev", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 28, "ocorrencias": 247, "km": 13268, "pecas": 0.0}, {"mes": "Fev", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 28, "ocorrencias": 422, "km": 10085, "pecas": 0.0}, {"mes": "Fev", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Fev", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 28, "ocorrencias": 92, "km": 6564, "pecas": 0.0}, {"mes": "Fev", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 28, "ocorrencias": 82, "km": 8587, "pecas": 0.0}, {"mes": "Fev", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 29, "ocorrencias": 73, "km": 7108, "pecas": 0.0}, {"mes": "Fev", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 20, "ocorrencias": 42, "km": 2641, "pecas": 0.0}, {"mes": "Fev", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 69, "km": 10753, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 28, "ocorrencias": 35, "km": 3018, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 7, "ocorrencias": 4, "km": 466, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 28, "ocorrencias": 27, "km": 1638, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 10, "ocorrencias": 18, "km": 1526, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 20, "ocorrencias": 11, "km": 1305, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 28, "ocorrencias": 25, "km": 3633, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 28, "ocorrencias": 35, "km": 4434, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 16, "ocorrencias": 22, "km": 2037, "pecas": 0.0}, {"mes": "Fev", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 29, "ocorrencias": 53, "km": 2852, "pecas": 0.0}, {"mes": "Fev", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 28, "ocorrencias": 63, "km": 7008, "pecas": 0.0}, {"mes": "Fev", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Fev", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 28, "ocorrencias": 57, "km": 5339, "pecas": 0.0}, {"mes": "Fev", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 28, "ocorrencias": 47, "km": 0, "pecas": 0.0}, {"mes": "Fev", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 28, "ocorrencias": 62, "km": 0, "pecas": 0.0}, {"mes": "Fev", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 28, "ocorrencias": 51, "km": 0, "pecas": 0.0}, {"mes": "Fev", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 28, "ocorrencias": 45, "km": 0, "pecas": 0.0}, {"mes": "Fev", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 28, "ocorrencias": 59, "km": 0, "pecas": 0.0}, {"mes": "Fev", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 28, "ocorrencias": 7, "km": 0, "pecas": 0.0}, {"mes": "Mar", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 30, "ocorrencias": 584, "km": 14836, "pecas": 0.0}, {"mes": "Mar", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 10, "ocorrencias": 74, "km": 3230, "pecas": 0.0}, {"mes": "Mar", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 30, "ocorrencias": 266, "km": 16379, "pecas": 0.0}, {"mes": "Mar", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 30, "ocorrencias": 359, "km": 13087, "pecas": 0.0}, {"mes": "Mar", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 30, "ocorrencias": 508, "km": 13151, "pecas": 0.0}, {"mes": "Mar", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 20, "ocorrencias": 242, "km": 0, "pecas": 0.0}, {"mes": "Mar", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 86, "km": 8603, "pecas": 0.0}, {"mes": "Mar", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 16, "ocorrencias": 46, "km": 6124, "pecas": 0.0}, {"mes": "Mar", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 11, "ocorrencias": 45, "km": 3535, "pecas": 0.0}, {"mes": "Mar", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 120, "km": 8284, "pecas": 0.0}, {"mes": "Mar", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 20, "ocorrencias": 112, "km": 5823, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 74, "km": 3959, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 23, "ocorrencias": 24, "km": 3671, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 88, "km": 3619, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 0, "ocorrencias": 6, "km": 0, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 33, "ocorrencias": 38, "km": 3176, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 18, "ocorrencias": 33, "km": 2981, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 16, "ocorrencias": 49, "km": 5754, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 107, "km": 8348, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 69, "km": 7053, "pecas": 0.0}, {"mes": "Mar", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 27, "ocorrencias": 43, "km": 3927, "pecas": 0.0}, {"mes": "Mar", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 63, "km": 5493, "pecas": 0.0}, {"mes": "Mar", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 63, "km": 8813, "pecas": 0.0}, {"mes": "Mar", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 83, "km": 7747, "pecas": 0.0}, {"mes": "Mar", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 84, "km": 0, "pecas": 0.0}, {"mes": "Mar", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 94, "km": 0, "pecas": 0.0}, {"mes": "Mar", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 75, "km": 0, "pecas": 0.0}, {"mes": "Mar", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 68, "km": 0, "pecas": 0.0}, {"mes": "Mar", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 74, "km": 0, "pecas": 0.0}, {"mes": "Mar", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 14, "km": 0, "pecas": 0.0}, {"mes": "Abr", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 30, "ocorrencias": 563, "km": 16670, "pecas": 0.0}, {"mes": "Abr", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 30, "ocorrencias": 406, "km": 13173, "pecas": 0.0}, {"mes": "Abr", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 30, "ocorrencias": 244, "km": 17758, "pecas": 0.0}, {"mes": "Abr", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 30, "ocorrencias": 296, "km": 14166, "pecas": 0.0}, {"mes": "Abr", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 30, "ocorrencias": 406, "km": 12520, "pecas": 0.0}, {"mes": "Abr", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 30, "ocorrencias": 29, "km": 0, "pecas": 0.0}, {"mes": "Abr", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 24, "ocorrencias": 64, "km": 4346, "pecas": 0.0}, {"mes": "Abr", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Abr", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 17, "ocorrencias": 44, "km": 3412, "pecas": 0.0}, {"mes": "Abr", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 99, "km": 7559, "pecas": 0.0}, {"mes": "Abr", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 121, "km": 5919, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 49, "km": 3829, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 57, "km": 4259, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 50, "km": 2786, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 37, "km": 2801, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 49, "km": 3225, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 7, "ocorrencias": 8, "km": 681, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 90, "km": 9653, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 68, "km": 6740, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 11, "ocorrencias": 33, "km": 2882, "pecas": 0.0}, {"mes": "Abr", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 42, "km": 4154, "pecas": 0.0}, {"mes": "Abr", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 25, "ocorrencias": 58, "km": 5544, "pecas": 0.0}, {"mes": "Abr", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 20, "ocorrencias": 48, "km": 3315, "pecas": 0.0}, {"mes": "Abr", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 30, "ocorrencias": 97, "km": 10559, "pecas": 0.0}, {"mes": "Abr", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 54, "km": 0, "pecas": 0.0}, {"mes": "Abr", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 70, "km": 0, "pecas": 0.0}, {"mes": "Abr", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 90, "km": 0, "pecas": 0.0}, {"mes": "Abr", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 67, "km": 0, "pecas": 0.0}, {"mes": "Abr", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 75, "km": 0, "pecas": 0.0}, {"mes": "Abr", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 6, "km": 0, "pecas": 0.0}, {"mes": "Mai", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 31, "ocorrencias": 479, "km": 15947, "pecas": 0.0}, {"mes": "Mai", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 30, "ocorrencias": 258, "km": 16702, "pecas": 0.0}, {"mes": "Mai", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 25, "ocorrencias": 246, "km": 13568, "pecas": 0.0}, {"mes": "Mai", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 27, "ocorrencias": 330, "km": 12043, "pecas": 0.0}, {"mes": "Mai", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 31, "ocorrencias": 422, "km": 12356, "pecas": 0.0}, {"mes": "Mai", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Mai", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 84, "km": 5538, "pecas": 0.0}, {"mes": "Mai", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 6, "ocorrencias": 8, "km": 813, "pecas": 0.0}, {"mes": "Mai", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 121, "km": 9273, "pecas": 0.0}, {"mes": "Mai", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 101, "km": 6459, "pecas": 0.0}, {"mes": "Mai", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 22, "ocorrencias": 87, "km": 5068, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 56, "km": 3782, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 26, "ocorrencias": 35, "km": 3236, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 45, "km": 2289, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 48, "km": 3322, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 47, "km": 4088, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 23, "ocorrencias": 61, "km": 6255, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 18, "ocorrencias": 36, "km": 5822, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 13, "ocorrencias": 23, "km": 1750, "pecas": 0.0}, {"mes": "Mai", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 26, "ocorrencias": 79, "km": 5786, "pecas": 0.0}, {"mes": "Mai", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 30, "ocorrencias": 91, "km": 6234, "pecas": 0.0}, {"mes": "Mai", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 15, "ocorrencias": 36, "km": 3726, "pecas": 0.0}, {"mes": "Mai", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 75, "km": 7947, "pecas": 0.0}, {"mes": "Mai", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 52, "km": 2924, "pecas": 0.0}, {"mes": "Mai", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 27, "ocorrencias": 60, "km": 3541, "pecas": 0.0}, {"mes": "Mai", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 27, "ocorrencias": 72, "km": 4914, "pecas": 0.0}, {"mes": "Mai", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 26, "ocorrencias": 70, "km": 3369, "pecas": 0.0}, {"mes": "Mai", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 13, "ocorrencias": 51, "km": 2017, "pecas": 0.0}, {"mes": "Mai", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 17, "ocorrencias": 37, "km": 4253, "pecas": 0.0}, {"mes": "Jun", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 30, "ocorrencias": 353, "km": 14704, "pecas": 0.0}, {"mes": "Jun", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 11, "ocorrencias": 111, "km": 6848, "pecas": 0.0}, {"mes": "Jun", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 30, "ocorrencias": 193, "km": 20384, "pecas": 0.0}, {"mes": "Jun", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 30, "ocorrencias": 260, "km": 12452, "pecas": 0.0}, {"mes": "Jun", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 30, "ocorrencias": 347, "km": 13437, "pecas": 0.0}, {"mes": "Jun", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Jun", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 102, "km": 6663, "pecas": 0.0}, {"mes": "Jun", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 66, "km": 7656, "pecas": 0.0}, {"mes": "Jun", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 22, "ocorrencias": 55, "km": 5010, "pecas": 0.0}, {"mes": "Jun", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 82, "km": 5265, "pecas": 0.0}, {"mes": "Jun", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 102, "km": 5715, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 25, "ocorrencias": 35, "km": 2430, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 6, "ocorrencias": 9, "km": 781, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 29, "km": 1613, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 41, "km": 2430, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 29, "km": 1869, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 14, "km": 2232, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 27, "ocorrencias": 65, "km": 11478, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 25, "ocorrencias": 41, "km": 5396, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 59, "km": 4384, "pecas": 0.0}, {"mes": "Jun", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 67, "km": 3850, "pecas": 0.0}, {"mes": "Jun", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 19, "ocorrencias": 56, "km": 5256, "pecas": 0.0}, {"mes": "Jun", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 30, "ocorrencias": 56, "km": 6189, "pecas": 0.0}, {"mes": "Jun", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 26, "ocorrencias": 47, "km": 5205, "pecas": 0.0}, {"mes": "Jun", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 40, "km": 2684, "pecas": 0.0}, {"mes": "Jun", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 38, "km": 2829, "pecas": 0.0}, {"mes": "Jun", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 20, "ocorrencias": 36, "km": 2865, "pecas": 0.0}, {"mes": "Jun", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 59, "km": 3313, "pecas": 0.0}, {"mes": "Jun", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 49, "km": 3607, "pecas": 0.0}, {"mes": "Jun", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 12, "ocorrencias": 14, "km": 1536, "pecas": 0.0}, {"mes": "Jul", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 31, "ocorrencias": 605, "km": 17967, "pecas": 0.0}, {"mes": "Jul", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 31, "ocorrencias": 376, "km": 20137, "pecas": 0.0}, {"mes": "Jul", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 31, "ocorrencias": 333, "km": 20887, "pecas": 0.0}, {"mes": "Jul", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 31, "ocorrencias": 425, "km": 14747, "pecas": 0.0}, {"mes": "Jul", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 26, "ocorrencias": 391, "km": 11100, "pecas": 0.0}, {"mes": "Jul", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Jul", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 22, "ocorrencias": 52, "km": 3991, "pecas": 0.0}, {"mes": "Jul", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 11, "ocorrencias": 22, "km": 2079, "pecas": 0.0}, {"mes": "Jul", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 28, "ocorrencias": 78, "km": 7783, "pecas": 0.0}, {"mes": "Jul", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 27, "ocorrencias": 66, "km": 4523, "pecas": 0.0}, {"mes": "Jul", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 23, "ocorrencias": 125, "km": 5874, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 48, "km": 3645, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 19, "ocorrencias": 12, "km": 1207, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 22, "km": 1509, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 41, "km": 2080, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 25, "ocorrencias": 23, "km": 1168, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 23, "km": 1611, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 20, "ocorrencias": 39, "km": 4524, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 17, "ocorrencias": 18, "km": 2428, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 35, "km": 2963, "pecas": 0.0}, {"mes": "Jul", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 21, "ocorrencias": 67, "km": 4803, "pecas": 0.0}, {"mes": "Jul", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Jul", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 64, "km": 5778, "pecas": 0.0}, {"mes": "Jul", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 88, "km": 8736, "pecas": 0.0}, {"mes": "Jul", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 45, "km": 3088, "pecas": 0.0}, {"mes": "Jul", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 48, "km": 3524, "pecas": 0.0}, {"mes": "Jul", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 50, "km": 5025, "pecas": 0.0}, {"mes": "Jul", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 26, "ocorrencias": 51, "km": 2388, "pecas": 0.0}, {"mes": "Jul", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 28, "ocorrencias": 49, "km": 3240, "pecas": 0.0}, {"mes": "Jul", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 13, "ocorrencias": 18, "km": 1761, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 31, "ocorrencias": 461, "km": 17624, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 31, "ocorrencias": 269, "km": 17409, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 27, "ocorrencias": 509, "km": 14262, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 29, "ocorrencias": 546, "km": 10592, "pecas": 0.0}, {"mes": "Ago", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 25, "ocorrencias": 60, "km": 4566, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 29, "ocorrencias": 57, "km": 6047, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 18, "ocorrencias": 64, "km": 6467, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 81, "km": 5613, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 27, "ocorrencias": 100, "km": 5061, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 61, "km": 4254, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 17, "km": 2630, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 28, "km": 2711, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 51, "km": 3461, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 10, "km": 807, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 23, "km": 1725, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 71, "km": 8268, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 6, "ocorrencias": 6, "km": 1927, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 25, "ocorrencias": 47, "km": 4035, "pecas": 0.0}, {"mes": "Ago", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 24, "ocorrencias": 45, "km": 2788, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 79, "km": 7761, "pecas": 0.0}, {"mes": "Ago", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 72, "km": 6436, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 43, "km": 3781, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 53, "km": 4019, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 62, "km": 6091, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 29, "ocorrencias": 47, "km": 1957, "pecas": 0.0}, {"mes": "Ago", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 25, "ocorrencias": 42, "km": 2622, "pecas": 0.0}, {"mes": "Ago", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 6, "ocorrencias": 3, "km": 2899, "pecas": 0.0}, {"mes": "Set", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 30, "ocorrencias": 739, "km": 16787, "pecas": 0.0}, {"mes": "Set", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 27, "ocorrencias": 193, "km": 11895, "pecas": 0.0}, {"mes": "Set", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 30, "ocorrencias": 136, "km": 16620, "pecas": 0.0}, {"mes": "Set", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 30, "ocorrencias": 728, "km": 14788, "pecas": 0.0}, {"mes": "Set", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 30, "ocorrencias": 739, "km": 10512, "pecas": 0.0}, {"mes": "Set", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 3, "ocorrencias": 20, "km": 9812, "pecas": 0.0}, {"mes": "Set", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 52, "km": 4165, "pecas": 0.0}, {"mes": "Set", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 6, "ocorrencias": 23, "km": 2951, "pecas": 0.0}, {"mes": "Set", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 27, "ocorrencias": 68, "km": 6106, "pecas": 0.0}, {"mes": "Set", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 28, "ocorrencias": 64, "km": 3867, "pecas": 0.0}, {"mes": "Set", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 104, "km": 4597, "pecas": 0.0}, {"mes": "Set", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 52, "km": 3608, "pecas": 0.0}, {"mes": "Set", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 28, "ocorrencias": 15, "km": 2048, "pecas": 0.0}, {"mes": "Set", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 27, "ocorrencias": 14, "km": 1073, "pecas": 0.0}, {"mes": "Set", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 23, "km": 1474, "pecas": 0.0}, {"mes": "Set", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 12, "km": 1037, "pecas": 0.0}, {"mes": "Set", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 26, "km": 3247, "pecas": 0.0}, {"mes": "Set", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 63, "km": 6485, "pecas": 0.0}, {"mes": "Set", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 14, "ocorrencias": 18, "km": 3234, "pecas": 0.0}, {"mes": "Set", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 50, "km": 3261, "pecas": 0.0}, {"mes": "Set", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 17, "ocorrencias": 15, "km": 1053, "pecas": 0.0}, {"mes": "Set", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Set", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 30, "ocorrencias": 70, "km": 6420, "pecas": 0.0}, {"mes": "Set", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 27, "ocorrencias": 57, "km": 4967, "pecas": 0.0}, {"mes": "Set", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 29, "km": 3021, "pecas": 0.0}, {"mes": "Set", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 53, "km": 3645, "pecas": 0.0}, {"mes": "Set", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 49, "km": 5259, "pecas": 0.0}, {"mes": "Set", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 42, "km": 2041, "pecas": 0.0}, {"mes": "Set", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 51, "km": 3418, "pecas": 0.0}, {"mes": "Set", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 0, "ocorrencias": 0, "km": 1723, "pecas": 0.0}, {"mes": "Out", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 31, "ocorrencias": 402, "km": 14674, "pecas": 0.0}, {"mes": "Out", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 31, "ocorrencias": 262, "km": 14761, "pecas": 0.0}, {"mes": "Out", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 31, "ocorrencias": 212, "km": 15297, "pecas": 0.0}, {"mes": "Out", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 4, "ocorrencias": 51, "km": 1088, "pecas": 0.0}, {"mes": "Out", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 31, "ocorrencias": 562, "km": 11131, "pecas": 0.0}, {"mes": "Out", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 3, "ocorrencias": 11, "km": 807, "pecas": 0.0}, {"mes": "Out", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 65, "km": 6164, "pecas": 0.0}, {"mes": "Out", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Out", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 82, "km": 6696, "pecas": 0.0}, {"mes": "Out", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 21, "ocorrencias": 67, "km": 5443, "pecas": 0.0}, {"mes": "Out", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 25, "ocorrencias": 86, "km": 4755, "pecas": 0.0}, {"mes": "Out", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 21, "ocorrencias": 31, "km": 1590, "pecas": 0.0}, {"mes": "Out", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 16, "ocorrencias": 15, "km": 955, "pecas": 0.0}, {"mes": "Out", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 29, "ocorrencias": 24, "km": 2015, "pecas": 0.0}, {"mes": "Out", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 31, "km": 1735, "pecas": 0.0}, {"mes": "Out", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 15, "km": 683, "pecas": 0.0}, {"mes": "Out", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 25, "km": 3942, "pecas": 0.0}, {"mes": "Out", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 54, "km": 4797, "pecas": 0.0}, {"mes": "Out", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 21, "ocorrencias": 9, "km": 1349, "pecas": 0.0}, {"mes": "Out", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 128, "km": 6337, "pecas": 0.0}, {"mes": "Out", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 11, "km": 750, "pecas": 0.0}, {"mes": "Out", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 0, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Out", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 61, "km": 5538, "pecas": 0.0}, {"mes": "Out", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 23, "ocorrencias": 44, "km": 4498, "pecas": 0.0}, {"mes": "Out", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 39, "km": 4329, "pecas": 0.0}, {"mes": "Out", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 34, "km": 4531, "pecas": 0.0}, {"mes": "Out", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 49, "km": 4376, "pecas": 0.0}, {"mes": "Out", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 37, "km": 2432, "pecas": 0.0}, {"mes": "Out", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 54, "km": 4389, "pecas": 0.0}, {"mes": "Out", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 3, "km": 2698, "pecas": 0.0}, {"mes": "Nov", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Nov", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 30, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "IT-01", "tipo": "Inspeção", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "IT-02", "tipo": "Inspeção", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "IT-03", "tipo": "Inspeção", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "IT-04", "tipo": "Inspeção", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "IT-05", "tipo": "Inspeção", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "IT-06R", "tipo": "Inspeção", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "GL-01", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "GL-02", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "GL-03", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "GL-04", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "GL-05", "tipo": "Guincho Leve", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CP-01", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CP-02", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CP-03", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CP-04", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CP-05", "tipo": "Caminhão Pipa", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CM-01", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CM-02", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CM-03", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CM-04", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "CM-05", "tipo": "Caminhão Multiuso", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "GP-01", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "GP-02", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "GP-03R", "tipo": "Guincho Pesado", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "AC-01", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "AC-02", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "AC-03", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "AC-04", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "AC-05", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}, {"mes": "Dez", "prefixo": "ACR", "tipo": "Ambulância/Resgate", "dias": 31, "ocorrencias": 0, "km": 0, "pecas": 0.0}];
 
     let allRecords = EMBEDDED_RECORDS.map(r => ({
       data: r[0], mes: MONTHS[r[1]] || "Jan", mesIdx: r[1], placa: r[2], prefixo: r[3],
@@ -7677,7 +7836,53 @@
 
     }
 
-        function applyFilters() {
+        
+    // Gerenciador de Abas do Dashboard
+    let currentActiveTab = 'financeiro';
+    function switchTab(tabId) {
+      currentActiveTab = tabId;
+
+      // Atualizar botões de aba
+      const tabBtns = {
+        'financeiro': document.getElementById('tabBtnFinanceiro'),
+        'operacional': document.getElementById('tabBtnOperacional'),
+        'auditoria': document.getElementById('tabBtnAuditoria')
+      };
+
+      const tabContents = {
+        'financeiro': document.getElementById('tabContentFinanceiro'),
+        'operacional': document.getElementById('tabContentOperacional'),
+        'auditoria': document.getElementById('tabContentAuditoria')
+      };
+
+      for (const [key, btn] of Object.entries(tabBtns)) {
+        if (!btn) continue;
+        if (key === tabId) {
+          btn.className = 'tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer bg-[#122B4B] text-white shadow-sm';
+        } else {
+          btn.className = 'tab-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer bg-white text-slate-600 hover:bg-slate-100 border border-slate-200';
+        }
+      }
+
+      for (const [key, content] of Object.entries(tabContents)) {
+        if (!content) continue;
+        if (key === tabId) {
+          content.classList.remove('hidden');
+        } else {
+          content.classList.add('hidden');
+        }
+      }
+
+      // Redimensionar gráficos para ajustar ao layout visível
+      setTimeout(() => {
+        Object.values(charts).forEach(c => {
+          if (c && typeof c.resize === 'function') c.resize();
+        });
+      }, 50);
+    }
+
+
+    function applyFilters() {
       renderFilterButtons();
       populateVehicleSelect();
       renderActiveFilterChips();
@@ -7697,7 +7902,24 @@
       const totalValor = filtered.reduce((a, b) => a + b.valor, 0);
       const totalLitros = filtered.reduce((a, b) => a + b.litros, 0);
       const validTrips = filtered.filter(r => r.isFuel && r.kmRodado > 0);
-      const totalKm = validTrips.reduce((a, b) => a + b.kmRodado, 0);
+      const totalKmAbast = validTrips.reduce((a, b) => a + b.kmRodado, 0);
+
+      // Calcular Ocorrências e KM's Rodados com base na aba FECHAMENTO_MENSAL (monthlyOperationalData)
+      let opFiltered = monthlyOperationalData.filter(d => {
+        if (selectedMonths.length > 0 && !selectedMonths.includes(d.mes)) return false;
+        // Obter base do veículo através de fleetList
+        const vObj = fleetList.find(v => v.prefixo === d.prefixo);
+        const vBase = vObj ? vObj.base : "";
+        const vTipo = vObj ? vObj.tipo : d.tipo;
+        if (selectedBases.length > 0 && !selectedBases.includes(vBase) && vBase !== "BAIXADO") return false;
+        if (selectedTypes.length > 0 && !selectedTypes.includes(vTipo)) return false;
+        if (selectedVehicle && d.prefixo !== selectedVehicle) return false;
+        return true;
+      });
+
+      const totalOcorrencias = opFiltered.reduce((a, b) => a + (b.ocorrencias || 0), 0);
+      const totalKmMensal = opFiltered.reduce((a, b) => a + (b.km || 0), 0);
+      const totalKm = totalKmMensal > 0 ? totalKmMensal : totalKmAbast;
       const litrosTrips = validTrips.reduce((a, b) => a + b.litros, 0);
       const valorTrips = validTrips.reduce((a, b) => a + b.valor, 0);
 
@@ -7710,6 +7932,19 @@
         : `R$ ${totalValor.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       document.getElementById("kpiLitros").innerText = `${Math.round(totalLitros).toLocaleString("pt-BR")} L`;
       document.getElementById("kpiAbastCount").innerText = `${filtered.length.toLocaleString("pt-BR")} abastecimentos`;
+      if (document.getElementById("kpiOcorrencias")) {
+        document.getElementById("kpiOcorrencias").innerText = totalOcorrencias.toLocaleString("pt-BR");
+      }
+      if (document.getElementById("kpiKmRodados")) {
+        document.getElementById("kpiKmRodados").innerText = `${totalKm.toLocaleString("pt-BR")} km`;
+      }
+      if (document.getElementById("kpiViaturasOp")) {
+        document.getElementById("kpiViaturasOp").innerText = ativas;
+      }
+      if (document.getElementById("kpiKmPorViatura")) {
+        const mediaKmPorV = ativas > 0 ? Math.round(totalKm / ativas) : 0;
+        document.getElementById("kpiKmPorViatura").innerText = `${mediaKmPorV.toLocaleString("pt-BR")} km`;
+      }
       document.getElementById("kpiKmL").innerText = `${mediaKmL.toFixed(1).replace(".", ",")} km/L`;
       document.getElementById("kpiCustoKm").innerText = `R$ ${custoKm.toFixed(2).replace(".", ",")}`;
       document.getElementById("kpiViaturas").innerText = ativas;
@@ -8768,6 +9003,265 @@
                   return ` ${ctx.label}: R$ ${val.toLocaleString("pt-BR")} (${pct}%)`;
                 }
               }
+            }
+          }
+        }
+      });
+
+                  // 6. Evolução Mensal de Ocorrências e KM Rodados (Aba FECHAMENTO_MENSAL)
+      const opMonths = ["Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+      const monthlyOcorrencias = opMonths.map(m => {
+        return monthlyOperationalData
+          .filter(d => d.mes.toLowerCase() === m.toLowerCase() && 
+                       (!selectedVehicle || d.prefixo === selectedVehicle) &&
+                       (selectedTypes.length === 0 || selectedTypes.includes(d.tipo)) &&
+                       (selectedBases.length === 0 || selectedBases.includes((fleetList.find(v => v.prefixo === d.prefixo) || {}).base)))
+          .reduce((acc, curr) => acc + (curr.ocorrencias || 0), 0);
+      });
+
+      const monthlyKm = opMonths.map(m => {
+        return monthlyOperationalData
+          .filter(d => d.mes.toLowerCase() === m.toLowerCase() && 
+                       (!selectedVehicle || d.prefixo === selectedVehicle) &&
+                       (selectedTypes.length === 0 || selectedTypes.includes(d.tipo)) &&
+                       (selectedBases.length === 0 || selectedBases.includes((fleetList.find(v => v.prefixo === d.prefixo) || {}).base)))
+          .reduce((acc, curr) => acc + (curr.km || 0), 0);
+      });
+
+      const maxOcorr = Math.max(...monthlyOcorrencias, 1);
+      const maxKm = Math.max(...monthlyKm, 1);
+
+      if (charts.monthlyOp) charts.monthlyOp.destroy();
+      charts.monthlyOp = new Chart(document.getElementById("monthlyOpChart"), {
+        type: "bar",
+        data: {
+          labels: opMonths,
+          datasets: [
+            {
+              type: "bar",
+              label: "Ocorrências (un)",
+              data: monthlyOcorrencias.map(v => v > 0 ? v : null),
+              backgroundColor: opMonths.map(m => (!selectedMonths.length || selectedMonths.includes(m)) ? "#122B4B" : "rgba(18, 43, 75, 0.25)"),
+              borderRadius: 6,
+              barPercentage: 0.52,
+              yAxisID: "y",
+              datalabels: {
+                anchor: "end",
+                align: "bottom",
+                offset: 6,
+                color: "#FFFFFF",
+                backgroundColor: "rgba(18, 43, 75, 0.9)",
+                borderRadius: 4,
+                padding: { top: 2, bottom: 2, left: 4, right: 4 },
+                font: { weight: "bold", size: 9, family: "DM Mono" },
+                formatter: (val) => (val && val > 0) ? val.toLocaleString("pt-BR") : ""
+              }
+            },
+            {
+              type: "line",
+              label: "KM Rodados (km)",
+              data: monthlyKm.map(v => v > 0 ? v : null),
+              borderColor: "#E34A4F",
+              backgroundColor: "#E34A4F",
+              borderWidth: 2.5,
+              tension: 0.2,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              yAxisID: "y1",
+              datalabels: {
+                anchor: "end",
+                align: "top",
+                offset: 6,
+                color: "#991B1B",
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                borderColor: "rgba(227, 74, 79, 0.5)",
+                borderWidth: 1,
+                borderRadius: 4,
+                padding: { top: 1, bottom: 1, left: 3, right: 3 },
+                font: { weight: "bold", size: 8.5, family: "DM Mono" },
+                formatter: (val) => (val && val > 0) ? val.toLocaleString("pt-BR") : ""
+              }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: { top: 25, bottom: 5, left: 10, right: 15 }
+          },
+          onHover: hoverPointer,
+          onClick: (evt, elements) => {
+            if (elements && elements.length > 0) {
+              const idx = elements[0].index;
+              crossFilterMonth(opMonths[idx]);
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const val = ctx.parsed.y || 0;
+                  if (ctx.dataset.label.includes("KM")) {
+                    return ` KM Rodados: ${val.toLocaleString("pt-BR")} km`;
+                  }
+                  return ` Ocorrências: ${val.toLocaleString("pt-BR")}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: "linear",
+              position: "left",
+              min: 0,
+              max: Math.round(maxOcorr * 2.2), // Garante que as barras fiquem restritas aos 45% inferiores
+              grid: { color: "rgba(226, 232, 240, 0.6)" },
+              ticks: { 
+                font: { family: "DM Mono", size: 9 },
+                callback: (val) => val <= maxOcorr * 1.15 ? val.toLocaleString("pt-BR") : ""
+              }
+            },
+            y1: {
+              type: "linear",
+              position: "right",
+              min: 0,
+              max: Math.round(maxKm * 1.25), // Mantém a linha de KM rodando no terço superior
+              grid: { drawOnChartArea: false },
+              ticks: { 
+                font: { family: "DM Mono", size: 9 },
+                callback: (val) => val.toLocaleString("pt-BR")
+              }
+            },
+            x: {
+              ticks: { font: { weight: "bold", size: 10.5 } }
+            }
+          }
+        }
+      });
+
+      // 7. Ocorrências e KM por Base Operacional (BS-01 a BS-05)
+      const opBases = ["BS-01", "BS-02", "BS-03", "BS-04", "BS-05"];
+      const baseOcorrencias = opBases.map(b => {
+        const vPrefixos = fleetList.filter(v => v.base === b).map(v => v.prefixo);
+        return monthlyOperationalData
+          .filter(d => vPrefixos.includes(d.prefixo) && 
+                       (selectedMonths.length === 0 || selectedMonths.includes(d.mes)) &&
+                       (!selectedVehicle || d.prefixo === selectedVehicle) &&
+                       (selectedTypes.length === 0 || selectedTypes.includes(d.tipo)))
+          .reduce((acc, curr) => acc + (curr.ocorrencias || 0), 0);
+      });
+
+      const baseKm = opBases.map(b => {
+        const vPrefixos = fleetList.filter(v => v.base === b).map(v => v.prefixo);
+        return monthlyOperationalData
+          .filter(d => vPrefixos.includes(d.prefixo) && 
+                       (selectedMonths.length === 0 || selectedMonths.includes(d.mes)) &&
+                       (!selectedVehicle || d.prefixo === selectedVehicle) &&
+                       (selectedTypes.length === 0 || selectedTypes.includes(d.tipo)))
+          .reduce((acc, curr) => acc + (curr.km || 0), 0);
+      });
+
+      const maxBaseOcorr = Math.max(...baseOcorrencias, 1);
+      const maxBaseKm = Math.max(...baseKm, 1);
+
+      if (charts.baseOp) charts.baseOp.destroy();
+      charts.baseOp = new Chart(document.getElementById("baseOpChart"), {
+        type: "bar",
+        data: {
+          labels: opBases,
+          datasets: [
+            {
+              label: "Ocorrências",
+              data: baseOcorrencias,
+              backgroundColor: opBases.map(b => (!selectedBases.length || selectedBases.includes(b)) ? "#2468B4" : "rgba(36, 104, 180, 0.25)"),
+              borderRadius: 6,
+              barPercentage: 0.78,
+              categoryPercentage: 0.76,
+              yAxisID: "y",
+              datalabels: {
+                anchor: "end",
+                align: "top",
+                offset: 2,
+                color: "#122B4B",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                borderRadius: 4,
+                padding: { top: 1, bottom: 1, left: 3, right: 3 },
+                font: { weight: "bold", size: 9, family: "DM Mono" },
+                formatter: (val) => val > 0 ? val.toLocaleString("pt-BR") : ""
+              }
+            },
+            {
+              label: "KM Rodados",
+              data: baseKm,
+              backgroundColor: opBases.map(b => (!selectedBases.length || selectedBases.includes(b)) ? "#E34A4F" : "rgba(227, 74, 79, 0.25)"),
+              borderRadius: 6,
+              barPercentage: 0.78,
+              categoryPercentage: 0.76,
+              yAxisID: "y1",
+              datalabels: {
+                anchor: "end",
+                align: "top",
+                offset: 14,
+                color: "#B91C1C",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                borderRadius: 4,
+                padding: { top: 1, bottom: 1, left: 3, right: 3 },
+                font: { weight: "bold", size: 9, family: "DM Mono" },
+                formatter: (val) => val > 0 ? `${val.toLocaleString("pt-BR")} km` : ""
+              }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: { top: 25, bottom: 5, left: 10, right: 15 }
+          },
+          onHover: hoverPointer,
+          onClick: (evt, elements) => {
+            if (elements && elements.length > 0) {
+              const idx = elements[0].index;
+              crossFilterBase(opBases[idx]);
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const val = ctx.parsed.y || 0;
+                  if (ctx.dataset.label === "KM Rodados") {
+                    return ` KM Rodados: ${val.toLocaleString("pt-BR")} km`;
+                  }
+                  return ` Ocorrências: ${val.toLocaleString("pt-BR")}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: "linear",
+              position: "left",
+              suggestedMax: maxBaseOcorr * 1.25,
+              grid: { color: "rgba(226, 232, 240, 0.6)" },
+              ticks: { 
+                font: { family: "DM Mono", size: 9.5 },
+                callback: (val) => val.toLocaleString("pt-BR")
+              }
+            },
+            y1: {
+              type: "linear",
+              position: "right",
+              suggestedMax: maxBaseKm * 1.25,
+              grid: { drawOnChartArea: false },
+              ticks: { 
+                font: { family: "DM Mono", size: 9.5 },
+                callback: (val) => val.toLocaleString("pt-BR")
+              }
+            },
+            x: {
+              ticks: { font: { weight: "bold", size: 10 } }
             }
           }
         }
